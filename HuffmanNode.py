@@ -14,8 +14,9 @@ class HuffmanNode:
         for line in lines:
             print(line)
 
+    #returns list of strings, width, height, and horizontal coordinate of the root.
     def _display_aux(self):
-        """Returns list of strings, width, height, and horizontal coordinate of the root."""
+
         # No child.
         if self.right is None and self.left is None:
             line = ""

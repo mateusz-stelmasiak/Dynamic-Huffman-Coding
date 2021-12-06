@@ -1,21 +1,11 @@
 from HuffmanNode import *
 
 
-# return a string binary representation
-# of ASCII code for given letter
-def to_binary_string(a):
-    l, m = [], []
-    for i in a:
-        l.append(ord(i))
-    for i in l:
-        m.append(int(bin(i)[2:]))
-    return str(m)[1:-1]
-
-
 # Holds root and methods for operating on huffman trees
 class HuffmanTree:
-    root = HuffmanNode()
-    zeroNode = root  # node for adding new letters
+    def __init__(self):
+        self.root = HuffmanNode()
+        self.zeroNode = self.root  # node for adding new letters
 
     # returns node with given letter
     # returns None- if no such node is found
@@ -38,33 +28,60 @@ class HuffmanTree:
         return None
 
     def get_code_from_letter(self, letter):
-        # TODO implement
         node = self.find_node(letter)
 
         # if letter not found
         if node is None:
             return None
 
-        return "NOT IMPLEMENTED"
+        curr_node = node
+        curr_parent = node.parent
+        code = ""
+        while curr_parent is not None:
+            if curr_node == curr_parent.left:
+                code = "0" + code
+            else:
+                code = "1" + code
+
+            curr_node = curr_parent
+            curr_parent = curr_parent.parent
+
+        return code
 
     def get_letter_from_code(self, code):
-        # TODO implement
-        return "NOT IMPLEMENTED"
+        curr_node = self.root
 
+        while code != "":
+            # letter not found
+            if curr_node is None:
+                return None
+
+            direction = code[0]
+
+            if direction == "1":
+                curr_node = curr_node.right
+            if direction == "0":
+                curr_node = curr_node.left
+
+            code = code[1:]
+
+        return curr_node.letter
+
+    # returns code of added letter if already exists
+    # and -1 if it was freshly inserted
     def add(self, letter):
         node = self.find_node(letter)
 
         # if letter found
         if node is not None:
-            #TODO REBUILD IF NEEDED
+            # TODO REBUILD IF NEEDED
             self.count_up(node)
-            # TODO get the new letters code
-            return "NOT IMPLEMENTED"
+            return self.get_code_from_letter(letter)
 
         # add new letter if not found
         self.add_new_letter(letter)
-        #TODO REBUILD IF NEEDED
-        return str(0) + to_binary_string(letter)
+        # TODO REBUILD IF NEEDED
+        return -1
 
     # splits the zero node to add new letter
     def add_new_letter(self, letter):

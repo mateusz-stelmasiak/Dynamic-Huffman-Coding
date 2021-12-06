@@ -1,9 +1,9 @@
 from HuffmanClient import *
 
-HuffmanClient = HuffmanClient()
-HuffmanClient.encode('a')
-HuffmanClient.encode('a')
-HuffmanClient.encode('b')
-HuffmanClient.encode('a')
+coder = HuffmanClient()
+decoder = HuffmanClient()
 
-HuffmanClient.display()
+text = "abcaaccaba"
+
+for l in text:
+    coder.encode(l, decoder)

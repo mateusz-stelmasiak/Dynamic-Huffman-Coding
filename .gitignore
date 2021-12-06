@@ -1,0 +1,10 @@
+
+.idea/inspectionProfiles/profiles_settings.xml
+.idea/inspectionProfiles/Project_Default.xml
+.idea/misc.xml
+.idea/modules.xml
+.idea/TKIK_Dynamic_Huffman.iml
+.idea/vcs.xml
+__pycache__/HuffmanClient.cpython-38.pyc
+__pycache__/HuffmanNode.cpython-38.pyc
+__pycache__/HuffmanTree.cpython-38.pyc
