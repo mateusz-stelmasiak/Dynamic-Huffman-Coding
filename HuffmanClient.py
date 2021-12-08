@@ -26,10 +26,14 @@ class HuffmanClient:
     # prints the tree
     def display(self):
         print("ClientId: " + str(self.clientId))
-        print("SentText: " + str(self.sent_text))
-        print("SentBits: " + str(self.sent_bits))
-        print("ReceivedText: " + str(self.received_text))
-        print("ReceivedBits: " + str(self.received_bits))
+        if self.sent_text != "": print("SentText: " + str(self.sent_text))
+        if self.sent_bits != "": print("SentBits: " + str(self.sent_bits))
+        if len(self.sent_bits) != 0: compressionS = (len(self.sent_text) * 8) / len(self.sent_bits)*100
+        if self.sent_bits != "": print("Compression: " + str(compressionS)+"%")
+        if self.received_text != "": print("ReceivedText: " + str(self.received_text))
+        if self.received_bits != "": print("ReceivedBits: " + str(self.received_bits))
+        if len(self.received_bits) != 0: compressionR = (len(self.received_text) * 8) / len(self.received_bits)*100
+        if self.received_bits != "": print("Compression: " + str(compressionR)+"%")
         self.huffmanTree.display()
 
     def encode(self, letter, decoder=None):
