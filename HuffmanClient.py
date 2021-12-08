@@ -16,8 +16,10 @@ def letter_from_binary_string(b_string):
 class HuffmanClient:
     def __init__(self):
         self.clientId = randrange(1000)
+        self.received_bits = ""
         self.received_text = ""
         self.sent_text = ""
+        self.sent_bits = ""
         self.huffmanTree = HuffmanTree()
         self.cache = {}  # dict of most used letter codes
 
@@ -25,12 +27,13 @@ class HuffmanClient:
     def display(self):
         print("ClientId: " + str(self.clientId))
         print("SentText: " + str(self.sent_text))
-        print("DictSize: " + str(self.received_text))
-        print("DictSize: " + str(self.huffmanTree.dict_size()))
+        print("SentBits: " + str(self.sent_bits))
+        print("ReceivedText: " + str(self.received_text))
+        print("ReceivedBits: " + str(self.received_bits))
         self.huffmanTree.display()
 
     def encode(self, letter, decoder=None):
-        self.sent_text+=letter
+        self.sent_text += letter
 
         # endcoding letter
         code = self.huffmanTree.add(letter)
@@ -42,6 +45,7 @@ class HuffmanClient:
 
         # TODO clear cache on rebuild
         print("Encoded '" + str(letter) + "' as: " + send_code)
+        self.sent_bits += send_code
         self.display()
 
         # send to decoder
@@ -58,14 +62,16 @@ class HuffmanClient:
             letter = letter_from_binary_string(acutal_code)
             self.huffmanTree.add(letter)
             print("Decoded '" + str(code) + "' as: " + str(letter))
-            self.display()
+            self.received_bits += code
             self.received_text += letter
+            self.display()
             return letter
 
         # TODO see if it's a cache hit
         letter = self.huffmanTree.get_letter_from_code(acutal_code)
         self.huffmanTree.add(letter)
         print("Decoded '" + str(code) + "' as: " + str(letter))
-        self.display()
         self.received_text += letter
+        self.received_bits += code
+        self.display()
         return letter
