@@ -28,26 +28,29 @@ class HuffmanClient:
         print("ClientId: " + str(self.clientId))
         if self.sent_text != "": print("SentText: " + str(self.sent_text))
         if self.sent_bits != "": print("SentBits: " + str(self.sent_bits))
-        if len(self.sent_bits) != 0: compressionS = (len(self.sent_text) * 8) / len(self.sent_bits)*100
-        if self.sent_bits != "": print("Compression: " + str(compressionS)+"%")
+        if len(self.sent_bits) != 0: compressionS = len(self.sent_bits) * 100 / (len(self.sent_text) * 8)
+        if self.sent_bits != "": print("Compression: " + str(compressionS) + "%")
         if self.received_text != "": print("ReceivedText: " + str(self.received_text))
-        if self.received_bits != "": print("ReceivedBits: " + str(self.received_bits))
-        if len(self.received_bits) != 0: compressionR = (len(self.received_text) * 8) / len(self.received_bits)*100
-        if self.received_bits != "": print("Compression: " + str(compressionR)+"%")
+        if self.received_bits != "": print("All ReceivedBits: " + str(self.received_bits))
+        if len(self.received_bits) != 0: compressionR = len(self.received_bits) * 100 / (len(self.received_text) * 8)
+        if self.received_bits != "": print("Compression: " + str(compressionR) + "%")
         self.huffmanTree.display()
 
     def encode(self, letter, decoder=None):
         self.sent_text += letter
 
         # endcoding letter
+        node_zero = self.huffmanTree.get_node_zero_code()
         code = self.huffmanTree.add(letter)
 
         if code == -1:
-            send_code = str(0) + letter_to_binary_string(letter)
+            send_code = node_zero + letter_to_binary_string(
+                letter)  # Node zero kod + kod nowej litery woj
         else:
-            send_code = str(1) + code
+            send_code = code
 
         # TODO clear cache on rebuild
+        print("Node zero code is: " + str(node_zero))
         print("Encoded '" + str(letter) + "' as: " + send_code)
         self.sent_bits += send_code
         self.display()
@@ -58,24 +61,37 @@ class HuffmanClient:
 
         return code
 
-    def decode(self, code):
-        is_ascii = code[0] == "0"
-        acutal_code = code[1:]
+    def is_node_zero(self, code):
+        node_zero_code = self.huffmanTree.get_node_zero_code()
+        for x in range(len(node_zero_code)):
+            if node_zero_code[x] != code[x]:
+                return False
+        return True
 
-        if is_ascii:
-            letter = letter_from_binary_string(acutal_code)
+
+    def decode(self, code):
+        #is_ascii = code[0] == "0"  # woj
+        #acutal_code = code[1:]
+        print("node zero code is: " + self.huffmanTree.get_node_zero_code())
+        print("Received bits: " + str(code))
+        self.received_bits += code
+        #woj chagnes
+        if self.is_node_zero(code):
+            code = code[len(self.huffmanTree.get_node_zero_code())+1:]  #woj
+
+            letter = letter_from_binary_string(code)
             self.huffmanTree.add(letter)
-            print("Decoded '" + str(code) + "' as: " + str(letter))
-            self.received_bits += code
+            print("Decodedd '" + str(code) + "' as: " + str(letter))
             self.received_text += letter
             self.display()
             return letter
 
+
         # TODO see if it's a cache hit
-        letter = self.huffmanTree.get_letter_from_code(acutal_code)
+        letter = self.huffmanTree.get_letter_from_code(code)
         self.huffmanTree.add(letter)
         print("Decoded '" + str(code) + "' as: " + str(letter))
         self.received_text += letter
-        self.received_bits += code
+
         self.display()
         return letter

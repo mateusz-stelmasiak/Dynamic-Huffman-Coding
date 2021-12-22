@@ -74,7 +74,6 @@ class HuffmanTree:
 
         # if letter found
         if node is not None:
-            # TODO REBUILD IF NEEDED
             self.count_up(node)
             return self.get_code_from_letter(letter)
 
@@ -129,3 +128,27 @@ class HuffmanTree:
         print("--CURRENT TREE--")
         self.root.display()
         print()
+
+#NEW THINGIES woj:
+
+    def get_node_zero_code(self):
+        node = self.zeroNode
+
+        # if letter not found
+        if node is None:
+            return None
+
+        curr_node = node
+        curr_parent = node.parent
+        code = ""
+        while curr_parent is not None:
+            if curr_node == curr_parent.left:
+                code = "0" + code
+            else:
+                code = "1" + code
+
+            curr_node = curr_parent
+            curr_parent = curr_parent.parent
+
+
+        return code
