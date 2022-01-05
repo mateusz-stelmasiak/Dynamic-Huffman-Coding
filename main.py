@@ -15,4 +15,4 @@ coder.display()
 
 
 
-print("program was running for : --- %s seconds ---" % (time.time() - start_time))
+print("program was running for : ---- %s seconds ----" % (time.time() - start_time))
