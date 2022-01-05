@@ -51,10 +51,10 @@ class HuffmanTree:
     def get_letter_from_code(self, code):
         curr_node = self.root
 
-        while code != "":
+        while len(code) != 0:
             # letter not found
             if curr_node is None:
-                return None
+                return ""
 
             direction = code[0]
 
@@ -64,6 +64,9 @@ class HuffmanTree:
                 curr_node = curr_node.left
 
             code = code[1:]
+
+        if curr_node is None:
+            return ""
 
         return curr_node.letter
 
@@ -75,11 +78,12 @@ class HuffmanTree:
         # if letter found
         if node is not None:
             self.count_up(node)
+            self.update(node)
             return self.get_code_from_letter(letter)
 
         # add new letter if not found
-        self.add_new_letter(letter)
-        # TODO REBUILD IF NEEDED
+        node = self.add_new_letter(letter)
+        self.update(node)
         return -1
 
     # splits the zero node to add new letter
@@ -91,15 +95,20 @@ class HuffmanTree:
         self.zeroNode.left = HuffmanNode()
         self.zeroNode.left.count = 0
         self.zeroNode.left.parent = self.zeroNode
+        self.zeroNode.left.rank = self.zeroNode.rank - 2
 
         # right node
         self.zeroNode.right = HuffmanNode()
         self.zeroNode.right.letter = letter
         self.zeroNode.right.count = 1
         self.zeroNode.right.parent = self.zeroNode
+        curr_node = self.zeroNode.right
+        self.zeroNode.right.rank = self.zeroNode.rank - 1
 
         # replacing zero node with a new one
         self.zeroNode = self.zeroNode.left
+
+        return curr_node
 
     def count_up(self, node):
         self._count_up_aux(node)
@@ -109,6 +118,15 @@ class HuffmanTree:
         node.count = node.count + 1
         if node.parent is not None:
             self._count_up_aux(node.parent)
+
+    def count_down(self, node):
+        self._count_down_aux(node)
+
+    # increments counters up the tree
+    def _count_down_aux(self, node):
+        node.count = node.count - 1
+        if node.parent is not None:
+            self._count_down_aux(node.parent)
 
     # count dictionary size
     # only nodes that contain letters
@@ -129,8 +147,6 @@ class HuffmanTree:
         self.root.display()
         print()
 
-#NEW THINGIES woj:
-
     def get_node_zero_code(self):
         node = self.zeroNode
 
@@ -150,5 +166,134 @@ class HuffmanTree:
             curr_node = curr_parent
             curr_parent = curr_parent.parent
 
-
         return code
+
+    def switch_nodes(self, first_node, second_node):
+        # switch ranks
+        first_node_rank_temp = first_node.rank
+        first_node.rank = second_node.rank
+        second_node.rank = first_node_rank_temp
+
+        is_first_left_child = first_node.parent.left == first_node
+        is_sec_left_child = second_node.parent.left == second_node
+        if is_first_left_child:
+            if is_sec_left_child:
+                first_node.parent.left, second_node.parent.left = second_node, first_node
+            else:
+                first_node.parent.left, second_node.parent.right = second_node, first_node
+        # first right
+        else:
+            if is_sec_left_child:
+                first_node.parent.right, second_node.parent.left = second_node, first_node
+            else:
+                first_node.parent.right, second_node.parent.right = second_node, first_node
+
+        # lastly, switch parents
+        first_node.parent, second_node.parent = second_node.parent, first_node.parent
+
+    def recalculate_counts(self):
+        levels = self.BFS()
+
+        # last level
+        level_index = len(levels) - 1
+
+        while level_index != 0:
+            for node in levels[level_index]:
+                parent = node.parent
+                # get only empty nodes
+                if parent.letter is None:
+                    parent.count = parent.left.count + parent.right.count
+
+            level_index = level_index - 1
+
+    def get_same_count(self, levels, node_level, node_count):
+        for i in range(0, node_level):
+            for node in levels[i]:
+                if node.count == node_count:
+                    return node
+
+        return None
+
+
+    def update(self, updated_node):
+        levels = self.BFS()
+
+        while not self.check_for_vitter_rule():
+            print("TREE BREAKS RULE")
+            self.display()
+
+            node_level = self.get_block_index(levels, updated_node)
+            # it wasn't the inserted that broke the rule
+            broken_level, broken_level_index = self.get_block_index_breaking_vitter_rule()
+
+            if broken_level_index == node_level or broken_level_index == node_level - 1:
+                # swap_level = node_level - 1
+                # swap_max = len(levels[swap_level]) - 1
+                switch_candidate = self.get_same_count(levels, node_level, updated_node.count - 1)
+                self.switch_nodes(updated_node, switch_candidate)
+            else:
+                self.switch_nodes(broken_level[0], broken_level[1])
+
+            self.recalculate_counts()
+            print("AFTER SWITCH")
+            self.display()
+
+    # if no block breaks, returns none
+    def get_block_index_breaking_vitter_rule(self):
+        # get block
+        block_list = self.BFS()
+        for index, block in enumerate(block_list):
+            for node_id in range(1, len(block)):
+                if block[node_id].count < block[node_id - 1].count:
+                    return block, index
+
+        return None
+
+    def check_for_vitter_rule(self):
+        # get block
+        block_list = self.BFS()
+        for block in block_list:
+            for node_id in range(1, len(block)):
+                if block[node_id].count < block[node_id - 1].count:
+                    return False
+
+        return True
+
+    def get_block_index(self, levels, current_node):
+        for index, level in enumerate(levels):
+            for node in level:
+                if node == current_node:
+                    return index
+
+        return -1
+
+    # def get_block_up(self, current_node):
+    #     thislevel = [self.root]
+    #
+    #     while thislevel:
+    #         if current_node in thislevel:
+    #             return thislevel
+    #
+    #         nextlevel = list()
+    #         for n in thislevel:
+    #             if n.left is not None: nextlevel.append(n.left)
+    #             if n.right is not None: nextlevel.append(n.right)
+    #
+    #         thislevel = nextlevel
+    #
+    #     return thislevel
+
+    def BFS(self):
+        levels = []
+        thislevel = [self.root]
+
+        while thislevel:
+            nextlevel = list()
+            for n in thislevel:
+                if n.left is not None: nextlevel.append(n.left)
+                if n.right is not None: nextlevel.append(n.right)
+
+            levels.append(thislevel)
+            thislevel = nextlevel
+
+        return levels

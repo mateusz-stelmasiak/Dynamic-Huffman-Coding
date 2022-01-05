@@ -12,5 +12,7 @@ for l in text:
     coder.encode(l, decoder)
 
 coder.display()
-decoder.display()
+
+
+
 print("program was running for : --- %s seconds ---" % (time.time() - start_time))
