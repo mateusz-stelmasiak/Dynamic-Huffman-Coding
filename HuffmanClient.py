@@ -32,6 +32,8 @@ class HuffmanClient:
         if self.sent_bits != "": print("SentBits: " + str(self.sent_bits))
         if len(self.sent_bits) != 0: compressionS = len(self.sent_bits) * 100 / (len(self.sent_text) * 8)
         if self.sent_bits_readable != "": print("Sent: " + str(self.sent_bits_readable))
+        if self.sent_bits != "": print("starting was : " + str(len(self.sent_text) * 8) + "bits")
+        if self.sent_bits != "": print("Sent total of : " + str(len(self.sent_bits)) + "bits")
         if self.sent_bits != "": print("Compression: " + str(compressionS) + "%")
 
         if self.received_text != "": print("ReceivedText: " + str(self.received_text))
@@ -39,8 +41,7 @@ class HuffmanClient:
         if self.received_bits_readable != "": print("Received: " + str(self.received_bits_readable))
         if len(self.received_bits) != 0: compressionR = len(self.received_bits) * 100 / (len(self.received_text) * 8)
         if self.received_bits != "": print("Compression: " + str(compressionR) + "%")
-        self.huffmanTree.display()
-
+        # self.huffmanTree.display()
 
     def encode(self, letter, decoder=None):
         self.sent_text += letter
@@ -51,7 +52,7 @@ class HuffmanClient:
 
         if code == -1:
             send_code = node_zero + letter_to_binary_string(letter)  # Node zero kod + kod nowej litery woj
-            self.sent_bits_readable += node_zero+"["+letter+"]"
+            self.sent_bits_readable += node_zero + "[" + letter + "]"
         else:
             send_code = code
             self.sent_bits_readable += code
@@ -76,25 +77,24 @@ class HuffmanClient:
 
         return True
 
-
     def decode(self, code):
         self.received_bits += code
 
-        #woj chagnes
+        # woj chagnes
         if self.is_node_zero(code):
-            code = code[len(self.huffmanTree.get_node_zero_code())+1:]  #woj
+            code = code[len(self.huffmanTree.get_node_zero_code()) + 1:]  # woj
 
             letter = letter_from_binary_string(code)
             self.huffmanTree.add(letter)
-            #display  print("Decodedd '" + str(code) + "' as: " + str(letter))
+            # display  print("Decodedd '" + str(code) + "' as: " + str(letter))
             self.received_text += letter
-            #display self.display()
+            # display self.display()
             return letter
 
         letter = self.huffmanTree.get_letter_from_code(code)
         self.huffmanTree.add(letter)
-        #display  print("Decoded '" + str(code) + "' as: " + str(letter))
+        # display  print("Decoded '" + str(code) + "' as: " + str(letter))
         self.received_text += letter
 
-       #display self.display()
+        # display self.display()
         return letter
