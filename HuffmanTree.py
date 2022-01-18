@@ -78,8 +78,9 @@ class HuffmanTree:
         # if letter found
         if node is not None:
             self.count_up(node)
+            code = self.get_code_from_letter(letter)
             self.update(node)
-            return self.get_code_from_letter(letter)
+            return code
 
         # add new letter if not found
         node = self.add_new_letter(letter)
@@ -214,74 +215,91 @@ class HuffmanTree:
 
         return None
 
+    def update_node_zero(self,levels):
+        for level in levels:
+            for node in level:
+                if node.letter is None and node.count == 0:
+                    self.zeroNode = node
+                    break
+
 
     def update(self, updated_node):
         levels = self.BFS()
+        upt_level = self.get_node_level_index(updated_node, levels)
 
-        while not self.check_for_vitter_rule():
-            print("TREE BREAKS RULE")
-            self.display()
+        while not self.check_for_sibling_property(updated_node, upt_level, levels):
+            # print("TREE BREAKS RULE")
+            # self.display()
 
-            node_level = self.get_block_index(levels, updated_node)
-            # it wasn't the inserted that broke the rule
-            broken_level, broken_level_index = self.get_block_index_breaking_vitter_rule()
+            # check all levels above inserted
+            break_flag = False
+            for level_id in range(0, upt_level):
+                for node_id in range(0, len(levels[level_id])):
+                    if levels[level_id][node_id].letter is not None and levels[level_id][node_id].count == updated_node.count - 1:
+                        self.switch_nodes(levels[level_id][node_id], updated_node)
+                        break_flag = True
+                        # break
+                if break_flag: break
 
-            if broken_level_index == node_level or broken_level_index == node_level - 1:
-                # swap_level = node_level - 1
-                # swap_max = len(levels[swap_level]) - 1
-                switch_candidate = self.get_same_count(levels, node_level, updated_node.count - 1)
-                self.switch_nodes(updated_node, switch_candidate)
-            else:
-                self.switch_nodes(broken_level[0], broken_level[1])
+            # siblings check
+            if not break_flag:
+                for level in levels:
+                    for node_id in range(1, len(level)):
+                        if level[node_id].count < level[node_id - 1].count:
+                            self.switch_nodes(level[node_id-1], level[node_id])
+                            break_flag = True
+                    if break_flag: break
 
             self.recalculate_counts()
-            print("AFTER SWITCH")
-            self.display()
+            levels = self.BFS()
+            upt_level = self.get_node_level_index(updated_node, levels)
 
-    # if no block breaks, returns none
-    def get_block_index_breaking_vitter_rule(self):
-        # get block
-        block_list = self.BFS()
-        for index, block in enumerate(block_list):
-            for node_id in range(1, len(block)):
-                if block[node_id].count < block[node_id - 1].count:
-                    return block, index
+        self.update_node_zero(levels)
 
-        return None
 
-    def check_for_vitter_rule(self):
-        # get block
-        block_list = self.BFS()
-        for block in block_list:
-            for node_id in range(1, len(block)):
-                if block[node_id].count < block[node_id - 1].count:
+
+    # def get_node_breaking_sibling_property(self, inserted_node, ins_level, levels):
+    #     ins_count = inserted_node.count
+    #
+    #     # check all levels above inserted
+    #     for level_id in range(0, ins_level):
+    #         for node_id in range(0, len(levels[level_id])):
+    #             if levels[level_id][node_id].letter is not None and levels[level_id][node_id].count == ins_count - 1:
+    #                 return levels[level_id][node_id]
+    #
+    #     # siblings check
+    #     for level in levels:
+    #         for node_id in range(1, len(level)):
+    #             if level[node_id].count < level[node_id - 1].count:
+    #                 return level[node_id - 1]
+    #
+    #     return None
+
+    def check_for_sibling_property(self, inserted_node, ins_level, levels):
+        ins_count = inserted_node.count
+
+        # check all levels above inserted
+        for level_id in range(0, ins_level):
+            for node_id in range(0, len(levels[level_id])):
+                if levels[level_id][node_id].letter is not None and levels[level_id][node_id].count == ins_count - 1:
+                    return False
+
+        # siblings check
+        for level in levels:
+            for node_id in range(1, len(level)):
+                if level[node_id].count < level[node_id - 1].count:
                     return False
 
         return True
 
-    def get_block_index(self, levels, current_node):
-        for index, level in enumerate(levels):
-            for node in level:
-                if node == current_node:
-                    return index
+    def get_node_level_index(self, node, levels):
+        for level_index, curr_level in enumerate(levels):
+            for curr_node in curr_level:
+                if node == curr_node:
+                    return level_index
 
-        return -1
+        return None
 
-    # def get_block_up(self, current_node):
-    #     thislevel = [self.root]
-    #
-    #     while thislevel:
-    #         if current_node in thislevel:
-    #             return thislevel
-    #
-    #         nextlevel = list()
-    #         for n in thislevel:
-    #             if n.left is not None: nextlevel.append(n.left)
-    #             if n.right is not None: nextlevel.append(n.right)
-    #
-    #         thislevel = nextlevel
-    #
-    #     return thislevel
 
     def BFS(self):
         levels = []

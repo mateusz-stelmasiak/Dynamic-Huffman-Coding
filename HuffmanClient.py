@@ -17,9 +17,11 @@ class HuffmanClient:
     def __init__(self):
         self.clientId = randrange(1000)
         self.received_bits = ""
+        self.received_bits_readable = ""  # ASCII characters replaced with [CHAR]
         self.received_text = ""
         self.sent_text = ""
         self.sent_bits = ""
+        self.sent_bits_readable = ""  # ASCII characters replaced with [CHAR]
         self.huffmanTree = HuffmanTree()
         self.cache = {}  # dict of most used letter codes
 
@@ -29,12 +31,16 @@ class HuffmanClient:
         if self.sent_text != "": print("SentText: " + str(self.sent_text))
         if self.sent_bits != "": print("SentBits: " + str(self.sent_bits))
         if len(self.sent_bits) != 0: compressionS = len(self.sent_bits) * 100 / (len(self.sent_text) * 8)
+        if self.sent_bits_readable != "": print("Sent: " + str(self.sent_bits_readable))
         if self.sent_bits != "": print("Compression: " + str(compressionS) + "%")
+
         if self.received_text != "": print("ReceivedText: " + str(self.received_text))
         if self.received_bits != "": print("All ReceivedBits: " + str(self.received_bits))
+        if self.received_bits_readable != "": print("Received: " + str(self.received_bits_readable))
         if len(self.received_bits) != 0: compressionR = len(self.received_bits) * 100 / (len(self.received_text) * 8)
         if self.received_bits != "": print("Compression: " + str(compressionR) + "%")
-        self.huffmanTree.display()
+        # self.huffmanTree.display()
+
 
     def encode(self, letter, decoder=None):
         self.sent_text += letter
@@ -44,15 +50,16 @@ class HuffmanClient:
         code = self.huffmanTree.add(letter)
 
         if code == -1:
-            send_code = node_zero + letter_to_binary_string(
-                letter)  # Node zero kod + kod nowej litery woj
+            send_code = node_zero + letter_to_binary_string(letter)  # Node zero kod + kod nowej litery woj
+            self.sent_bits_readable += node_zero+"["+letter+"]"
         else:
             send_code = code
+            self.sent_bits_readable += code
 
-        #display print("Node zero code is: " + str(node_zero))
-        #display  print("Encoded '" + str(letter) + "' as: " + send_code)
+        # print("Node zero code is: " + str(node_zero))
+        # print("Encoded '" + str(letter) + "' as: " + send_code)
         self.sent_bits += send_code
-        #display self.display()
+        # self.display()
 
         # send to decoder
         if decoder:
@@ -62,9 +69,11 @@ class HuffmanClient:
 
     def is_node_zero(self, code):
         node_zero_code = self.huffmanTree.get_node_zero_code()
+
         for x in range(len(node_zero_code)):
             if node_zero_code[x] != code[x]:
                 return False
+
         return True
 
 
