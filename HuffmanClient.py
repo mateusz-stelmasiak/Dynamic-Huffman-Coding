@@ -39,7 +39,7 @@ class HuffmanClient:
         if self.received_bits_readable != "": print("Received: " + str(self.received_bits_readable))
         if len(self.received_bits) != 0: compressionR = len(self.received_bits) * 100 / (len(self.received_text) * 8)
         if self.received_bits != "": print("Compression: " + str(compressionR) + "%")
-        # self.huffmanTree.display()
+        self.huffmanTree.display()
 
 
     def encode(self, letter, decoder=None):
@@ -62,8 +62,8 @@ class HuffmanClient:
         # self.display()
 
         # send to decoder
-        if decoder:
-            decoder.decode(send_code)
+        # if decoder:
+        #     decoder.decode(send_code)
 
         return code
 

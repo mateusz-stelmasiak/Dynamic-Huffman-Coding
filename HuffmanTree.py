@@ -79,12 +79,12 @@ class HuffmanTree:
         if node is not None:
             self.count_up(node)
             code = self.get_code_from_letter(letter)
-            self.update(node)
+            self.update()
             return code
 
         # add new letter if not found
         node = self.add_new_letter(letter)
-        self.update(node)
+        self.update()
         return -1
 
     # splits the zero node to add new letter
@@ -215,80 +215,112 @@ class HuffmanTree:
 
         return None
 
-    def update_node_zero(self,levels):
+    def update_node_zero(self, levels):
         for level in levels:
             for node in level:
                 if node.letter is None and node.count == 0:
                     self.zeroNode = node
                     break
 
-
-    def update(self, updated_node):
+    def update(self):
         levels = self.BFS()
-        upt_level = self.get_node_level_index(updated_node, levels)
 
-        while not self.check_for_sibling_property(updated_node, upt_level, levels):
-            # print("TREE BREAKS RULE")
-            # self.display()
+        while not self.is_sibling_satisfied(levels):
+            breaker, breaker_lvl = self.get_node_breaking_sibling_property(levels)
+            if breaker is None:
+                break;
+            print("BEFORE INCOMPLETE SWITCH")
+            self.display()
 
-            # check all levels above inserted
+            # check all levels below
             break_flag = False
-            for level_id in range(0, upt_level):
+            for level_id in range(0, breaker_lvl):
                 for node_id in range(0, len(levels[level_id])):
-                    if levels[level_id][node_id].letter is not None and levels[level_id][node_id].count == updated_node.count - 1:
-                        self.switch_nodes(levels[level_id][node_id], updated_node)
+                    if levels[level_id][node_id].letter is not None and levels[level_id][node_id].count <= breaker.count - 1:
+                        self.switch_nodes(levels[level_id][node_id], breaker)
                         break_flag = True
                         # break
                 if break_flag: break
 
             # siblings check
             if not break_flag:
-                for level in levels:
-                    for node_id in range(1, len(level)):
-                        if level[node_id].count < level[node_id - 1].count:
-                            self.switch_nodes(level[node_id-1], level[node_id])
-                            break_flag = True
-                    if break_flag: break
+                node_lvl = levels[breaker_lvl]
+                for node_id in range(1, len(node_lvl)):
+                    if node_lvl[node_id].count < node_lvl[node_id - 1].count:
+                        self.switch_nodes(node_lvl[node_id - 1], node_lvl[node_id])
+                        break
 
             self.recalculate_counts()
             levels = self.BFS()
-            upt_level = self.get_node_level_index(updated_node, levels)
+            print("AFTER INCOMPLETE SWITCH")
+            self.display()
+            print("")
 
+        breaker, breaker_lvl = self.get_node_breaking_sibling_property(levels)
+        if breaker is not None:
+            break_flag = False
+            for level_id in range(0, breaker_lvl):
+                for node_id in range(0, len(levels[level_id])):
+                    if levels[level_id][node_id].letter is not None and levels[level_id][
+                        node_id].count < breaker.count - 1:
+                        self.switch_nodes(levels[level_id][node_id], breaker)
+                        break_flag = True
+                        # break
+                if break_flag: break
+
+
+        print("AFTER COMPLETE SWITCH")
+        self.display()
         self.update_node_zero(levels)
 
-
-
-    # def get_node_breaking_sibling_property(self, inserted_node, ins_level, levels):
-    #     ins_count = inserted_node.count
     #
-    #     # check all levels above inserted
-    #     for level_id in range(0, ins_level):
-    #         for node_id in range(0, len(levels[level_id])):
-    #             if levels[level_id][node_id].letter is not None and levels[level_id][node_id].count == ins_count - 1:
-    #                 return levels[level_id][node_id]
-    #
-    #     # siblings check
-    #     for level in levels:
-    #         for node_id in range(1, len(level)):
-    #             if level[node_id].count < level[node_id - 1].count:
-    #                 return level[node_id - 1]
-    #
-    #     return None
-
-    def check_for_sibling_property(self, inserted_node, ins_level, levels):
-        ins_count = inserted_node.count
-
-        # check all levels above inserted
-        for level_id in range(0, ins_level):
-            for node_id in range(0, len(levels[level_id])):
-                if levels[level_id][node_id].letter is not None and levels[level_id][node_id].count == ins_count - 1:
-                    return False
-
+    def is_sibling_satisfied(self, levels):
         # siblings check
         for level in levels:
             for node_id in range(1, len(level)):
                 if level[node_id].count < level[node_id - 1].count:
                     return False
+        return True
+
+
+    def get_node_breaking_sibling_property(self, levels):
+        for level_index in range(len(levels) - 1, 0, -1):
+            for node in levels[level_index]:
+                tmp = self.get_node_breaking_sibling_property_aux(node, level_index - 1, levels)
+                if tmp is not None:
+                    return tmp, level_index - 1
+
+        return None, None
+
+    def get_node_breaking_sibling_property_aux(self, node, level_index, levels):
+        # # check all levels above inserted
+        # for level_id in range(0, level_index):
+        #     for node_id in range(0, len(levels[level_id])):
+        #         if levels[level_id][node_id].letter is not None and levels[level_id][node_id].count == node.count - 1:
+        #             return levels[level_id][node_id]
+
+        # siblings check
+        node_lvl = levels[level_index]
+        for node_id in range(1, len(node_lvl)):
+            if node_lvl[node_id].count < node_lvl[node_id - 1].count:
+                return node_lvl[node_id - 1]
+
+        return None
+
+    def check_node_sibling_property(self, node, node_level, levels):
+        node_count = node.count
+
+        # check all levels above inserted
+        for level_id in range(0, node_level):
+            for node_id in range(0, len(levels[level_id])):
+                if levels[level_id][node_id].letter is not None and levels[level_id][node_id].count < node_count - 1:
+                    return False
+
+        # siblings check
+        node_lvl = levels[node_level]
+        for node_id in range(1, len(node_lvl)):
+            if node_lvl[node_id].count < node_lvl[node_id - 1].count:
+                return False
 
         return True
 
@@ -299,7 +331,6 @@ class HuffmanTree:
                     return level_index
 
         return None
-
 
     def BFS(self):
         levels = []
