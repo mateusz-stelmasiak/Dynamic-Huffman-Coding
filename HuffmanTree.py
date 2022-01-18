@@ -229,8 +229,8 @@ class HuffmanTree:
             breaker, breaker_lvl = self.get_node_breaking_sibling_property(levels)
             if breaker is None:
                 break;
-            print("BEFORE INCOMPLETE SWITCH")
-            self.display()
+            # print("BEFORE INCOMPLETE SWITCH")
+            # self.display()
 
             # check all levels below
             break_flag = False
@@ -252,9 +252,9 @@ class HuffmanTree:
 
             self.recalculate_counts()
             levels = self.BFS()
-            print("AFTER INCOMPLETE SWITCH")
-            self.display()
-            print("")
+            # print("AFTER INCOMPLETE SWITCH")
+            # self.display()
+            # print("")
 
         breaker, breaker_lvl = self.get_node_breaking_sibling_property(levels)
         if breaker is not None:
@@ -269,8 +269,8 @@ class HuffmanTree:
                 if break_flag: break
 
 
-        print("AFTER COMPLETE SWITCH")
-        self.display()
+        # print("AFTER COMPLETE SWITCH")
+        # self.display()
         self.update_node_zero(levels)
 
     #
