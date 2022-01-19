@@ -41,7 +41,6 @@ class HuffmanClient:
         if self.received_bits != "": print("Compression: " + str(compressionR) + "%")
         self.huffmanTree.display()
 
-
     def encode(self, letter, decoder=None):
         self.sent_text += letter
 
@@ -51,7 +50,7 @@ class HuffmanClient:
 
         if code == -1:
             send_code = node_zero + letter_to_binary_string(letter)  # Node zero kod + kod nowej litery woj
-            self.sent_bits_readable += node_zero+"["+letter+"]"
+            self.sent_bits_readable += node_zero + "[" + letter + "]"
         else:
             send_code = code
             self.sent_bits_readable += code
@@ -59,7 +58,7 @@ class HuffmanClient:
         # print("Node zero code is: " + str(node_zero))
         # print("Encoded '" + str(letter) + "' as: " + send_code)
         self.sent_bits += send_code
-        # self.display()
+        self.display()
 
         # send to decoder
         # if decoder:
@@ -76,25 +75,65 @@ class HuffmanClient:
 
         return True
 
+    def decode_full(self, code):
+        buffer = ""
+        bit_index = 0
 
-    def decode(self, code):
-        self.received_bits += code
-
-        #woj chagnes
-        if self.is_node_zero(code):
-            code = code[len(self.huffmanTree.get_node_zero_code())+1:]  #woj
-
-            letter = letter_from_binary_string(code)
-            self.huffmanTree.add(letter)
-            #display  print("Decodedd '" + str(code) + "' as: " + str(letter))
-            self.received_text += letter
-            #display self.display()
-            return letter
-
-        letter = self.huffmanTree.get_letter_from_code(code)
+        # first 8 bits are always a letter
+        first_letter = code[0:8]
+        letter = letter_from_binary_string(first_letter)
         self.huffmanTree.add(letter)
-        #display  print("Decoded '" + str(code) + "' as: " + str(letter))
         self.received_text += letter
+        # cut off 8 first bits form code
+        code = code[8:]
 
-       #display self.display()
+        while True:
+            curr_node = self.huffmanTree.get_node_from_code(buffer)
+
+            if curr_node is None:
+                if bit_index < len(code): buffer = buffer + code[bit_index]
+                bit_index += 1
+            # found zero node
+            elif curr_node.count == 0:
+                letter_binary = code[bit_index:bit_index + 8]
+                letter = letter_from_binary_string(letter_binary)
+                self.huffmanTree.add(letter)
+                self.received_text += letter
+                # skip 8 chars (ASCII enconding)
+                bit_index += 8
+                buffer = ""
+                self.display()
+            #found normal letter
+            else:
+                letter = self.huffmanTree.get_letter_from_code(buffer)
+                self.huffmanTree.add(letter)
+                self.received_text += letter
+                buffer = ""
+                self.display()
+
+            # exit while if all bits have been interpreted
+            if bit_index > len(code):
+                break
+
+
+def decode(self, code):
+    self.received_bits += code
+
+    # woj chagnes
+    if self.is_node_zero(code):
+        code = code[len(self.huffmanTree.get_node_zero_code()) + 1:]  # woj
+
+        letter = letter_from_binary_string(code)
+        self.huffmanTree.add(letter)
+        # display  print("Decodedd '" + str(code) + "' as: " + str(letter))
+        self.received_text += letter
+        # display self.display()
         return letter
+
+    letter = self.huffmanTree.get_letter_from_code(code)
+    self.huffmanTree.add(letter)
+    # display  print("Decoded '" + str(code) + "' as: " + str(letter))
+    self.received_text += letter
+
+    # display self.display()
+    return letter

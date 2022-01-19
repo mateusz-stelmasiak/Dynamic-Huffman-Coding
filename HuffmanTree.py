@@ -48,6 +48,34 @@ class HuffmanTree:
 
         return code
 
+    def get_node_from_code(self, code):
+        curr_node = self.root
+
+        if len(code) == 0:
+            return None
+
+        while len(code) != 0:
+            # letter not found
+            if curr_node.letter != None:
+                return curr_node
+
+            direction = code[0]
+
+            if direction == "1":
+                curr_node = curr_node.right
+            if direction == "0":
+                curr_node = curr_node.left
+
+            code = code[1:]
+
+        if (curr_node is not None) and curr_node.count == 0:
+            return curr_node
+
+        if (curr_node is not None) and (curr_node.letter == None):
+            return None
+
+        return curr_node
+
     def get_letter_from_code(self, code):
         curr_node = self.root
 
@@ -236,7 +264,8 @@ class HuffmanTree:
             break_flag = False
             for level_id in range(0, breaker_lvl):
                 for node_id in range(0, len(levels[level_id])):
-                    if levels[level_id][node_id].letter is not None and levels[level_id][node_id].count <= breaker.count - 1:
+                    if levels[level_id][node_id].letter is not None and levels[level_id][
+                        node_id].count <= breaker.count - 1:
                         self.switch_nodes(levels[level_id][node_id], breaker)
                         break_flag = True
                         # break
@@ -268,7 +297,6 @@ class HuffmanTree:
                         # break
                 if break_flag: break
 
-
         # print("AFTER COMPLETE SWITCH")
         # self.display()
         self.update_node_zero(levels)
@@ -281,7 +309,6 @@ class HuffmanTree:
                 if level[node_id].count < level[node_id - 1].count:
                     return False
         return True
-
 
     def get_node_breaking_sibling_property(self, levels):
         for level_index in range(len(levels) - 1, 0, -1):
