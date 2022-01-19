@@ -252,7 +252,7 @@ class HuffmanTree:
 
     def update(self):
         levels = self.BFS()
-
+        last_switch=[]
         while not self.is_sibling_satisfied(levels):
             #get node that breaks sibling property
             breaker, breaker_lvl = self.get_node_breaking_sibling_property(levels)
@@ -263,9 +263,11 @@ class HuffmanTree:
             break_flag = False
             for level_id in range(0, breaker_lvl):
                 for node_id in range(0, len(levels[level_id])):
-                    if levels[level_id][node_id].letter is not None and levels[level_id][node_id].count <= breaker.count-1:
-                        self.switch_nodes(levels[level_id][node_id], breaker)
-                        break_flag = True
+                    if levels[level_id][node_id].letter is not None and levels[level_id][node_id].count <= breaker.count:
+                        if levels[level_id][node_id] not in last_switch and breaker not in last_switch:
+                            self.switch_nodes(levels[level_id][node_id], breaker)
+                            last_switch=[levels[level_id][node_id], breaker]
+                            break_flag = True
 
                 if break_flag: break
 
@@ -274,6 +276,7 @@ class HuffmanTree:
                 node_lvl = levels[breaker_lvl]
                 for node_id in range(1, len(node_lvl)):
                     if node_lvl[node_id].count < node_lvl[node_id - 1].count:
+                        last_switch = [node_lvl[node_id - 1], node_lvl[node_id]]
                         self.switch_nodes(node_lvl[node_id - 1], node_lvl[node_id])
                         break
 
