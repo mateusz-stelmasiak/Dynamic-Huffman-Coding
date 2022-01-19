@@ -36,7 +36,7 @@ class HuffmanClient:
         if self.sent_bits != "": print("Sent total of : " + str(len(self.sent_bits)) + "bits")
         if self.sent_bits != "": print("Compression: " + str(compressionS) + "%")
 
-        if self.received_text != "": print("ReceivedText: " + str(self.received_text))
+        if self.received_text != "": print("DecodedData: " + str(self.received_text))
         if self.received_bits != "": print("All ReceivedBits: " + str(self.received_bits))
         if self.received_bits_readable != "": print("Received: " + str(self.received_bits_readable))
         if len(self.received_bits) != 0: compressionR = len(self.received_bits) * 100 / (len(self.received_text) * 8)
@@ -61,7 +61,7 @@ class HuffmanClient:
         # print("Node zero code is: " + str(node_zero))
         # print("Encoded '" + str(letter) + "' as: " + send_code)
         self.sent_bits += send_code
-        self.display()
+        #self.display()
 
         # send to decoder
         # if decoder:
@@ -106,14 +106,14 @@ class HuffmanClient:
                 # skip 8 chars (ASCII enconding)
                 bit_index += 8
                 buffer = ""
-                self.display()
+                #self.display()
             #found normal letter
             else:
                 letter = self.huffmanTree.get_letter_from_code(buffer)
                 self.huffmanTree.add(letter)
                 self.received_text += letter
                 buffer = ""
-                self.display()
+                #self.display()
 
             # exit while if all bits have been interpreted
             if bit_index > len(code):
