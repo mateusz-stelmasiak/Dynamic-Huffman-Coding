@@ -254,24 +254,22 @@ class HuffmanTree:
         levels = self.BFS()
 
         while not self.is_sibling_satisfied(levels):
+            #get node that breaks sibling property
             breaker, breaker_lvl = self.get_node_breaking_sibling_property(levels)
             if breaker is None:
-                break;
-            # print("BEFORE INCOMPLETE SWITCH")
-            # self.display()
+                break
 
-            # check all levels below
+            #try to switch with above levels
             break_flag = False
             for level_id in range(0, breaker_lvl):
                 for node_id in range(0, len(levels[level_id])):
-                    if levels[level_id][node_id].letter is not None and levels[level_id][
-                        node_id].count <= breaker.count - 1:
+                    if levels[level_id][node_id].letter is not None and levels[level_id][node_id].count <= breaker.count - 1:
                         self.switch_nodes(levels[level_id][node_id], breaker)
                         break_flag = True
-                        # break
+
                 if break_flag: break
 
-            # siblings check
+            #if can't switch above, switch with sibling
             if not break_flag:
                 node_lvl = levels[breaker_lvl]
                 for node_id in range(1, len(node_lvl)):
@@ -281,24 +279,7 @@ class HuffmanTree:
 
             self.recalculate_counts()
             levels = self.BFS()
-            # print("AFTER INCOMPLETE SWITCH")
-            # self.display()
-            # print("")
 
-        breaker, breaker_lvl = self.get_node_breaking_sibling_property(levels)
-        if breaker is not None:
-            break_flag = False
-            for level_id in range(0, breaker_lvl):
-                for node_id in range(0, len(levels[level_id])):
-                    if levels[level_id][node_id].letter is not None and levels[level_id][
-                        node_id].count < breaker.count - 1:
-                        self.switch_nodes(levels[level_id][node_id], breaker)
-                        break_flag = True
-                        # break
-                if break_flag: break
-
-        # print("AFTER COMPLETE SWITCH")
-        # self.display()
         self.update_node_zero(levels)
 
     #
