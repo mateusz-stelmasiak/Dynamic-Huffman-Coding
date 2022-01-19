@@ -32,6 +32,8 @@ class HuffmanClient:
         if self.sent_bits != "": print("SentBits: " + str(self.sent_bits))
         if len(self.sent_bits) != 0: compressionS = len(self.sent_bits) * 100 / (len(self.sent_text) * 8)
         if self.sent_bits_readable != "": print("Sent: " + str(self.sent_bits_readable))
+        if self.sent_bits != "": print("starting was : " + str(len(self.sent_text) * 8) + "bits")
+        if self.sent_bits != "": print("Sent total of : " + str(len(self.sent_bits)) + "bits")
         if self.sent_bits != "": print("Compression: " + str(compressionS) + "%")
 
         if self.received_text != "": print("ReceivedText: " + str(self.received_text))
@@ -40,6 +42,7 @@ class HuffmanClient:
         if len(self.received_bits) != 0: compressionR = len(self.received_bits) * 100 / (len(self.received_text) * 8)
         if self.received_bits != "": print("Compression: " + str(compressionR) + "%")
         self.huffmanTree.display()
+
 
     def encode(self, letter, decoder=None):
         self.sent_text += letter
@@ -74,6 +77,7 @@ class HuffmanClient:
                 return False
 
         return True
+
 
     def decode_full(self, code):
         buffer = ""
@@ -116,24 +120,28 @@ class HuffmanClient:
                 break
 
 
-def decode(self, code):
-    self.received_bits += code
 
-    # woj chagnes
-    if self.is_node_zero(code):
-        code = code[len(self.huffmanTree.get_node_zero_code()) + 1:]  # woj
+    def decode(self, code):
+        self.received_bits += code
 
-        letter = letter_from_binary_string(code)
+        # woj chagnes
+        if self.is_node_zero(code):
+            code = code[len(self.huffmanTree.get_node_zero_code()) + 1:]  # woj
+
+            letter = letter_from_binary_string(code)
+            self.huffmanTree.add(letter)
+            # display  print("Decodedd '" + str(code) + "' as: " + str(letter))
+            self.received_text += letter
+            # display self.display()
+            return letter
+
+        letter = self.huffmanTree.get_letter_from_code(code)
         self.huffmanTree.add(letter)
-        # display  print("Decodedd '" + str(code) + "' as: " + str(letter))
+        # display  print("Decoded '" + str(code) + "' as: " + str(letter))
         self.received_text += letter
+
+
         # display self.display()
         return letter
 
-    letter = self.huffmanTree.get_letter_from_code(code)
-    self.huffmanTree.add(letter)
-    # display  print("Decoded '" + str(code) + "' as: " + str(letter))
-    self.received_text += letter
 
-    # display self.display()
-    return letter

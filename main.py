@@ -1,8 +1,6 @@
 from HuffmanClient import *
 import time
 
-
-
 # coder = HuffmanClient()
 #
 # with open("beemovie.txt", encoding='utf-8') as f:
