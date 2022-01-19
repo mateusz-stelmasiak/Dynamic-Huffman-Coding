@@ -116,7 +116,7 @@ class HuffmanClient:
                 self.huffmanTree.add(letter)
                 self.received_text += letter
                 # skip 8 chars (ASCII enconding)
-                bit_index += offset+1
+                bit_index += offset
                 buffer = ""
 
             else:
