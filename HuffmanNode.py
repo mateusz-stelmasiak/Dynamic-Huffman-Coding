@@ -1,3 +1,6 @@
+max_dict_size = 255
+
+
 # A single node of the huffman tree
 # node of binary tree, holding a letter and its count
 class HuffmanNode:
@@ -7,6 +10,7 @@ class HuffmanNode:
         self.right = None
         self.count = 0
         self.letter = None
+        self.rank = (max_dict_size * 2) - 1
 
     # prints tree starting on node
     def display(self):
@@ -14,7 +18,7 @@ class HuffmanNode:
         for line in lines:
             print(line)
 
-    #returns list of strings, width, height, and horizontal coordinate of the root.
+    # returns list of strings, width, height, and horizontal coordinate of the root.
     def _display_aux(self):
 
         # No child.
