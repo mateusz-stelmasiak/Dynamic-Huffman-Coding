@@ -24,6 +24,7 @@ class HuffmanClient:
         self.sent_bits_readable = ""  # ASCII characters replaced with [CHAR]
         self.huffmanTree = HuffmanTree()
         self.cache = {}  # dict of most used letter codes
+        self.dict_size = 0
 
     # prints the tree
     def display(self):
@@ -35,7 +36,7 @@ class HuffmanClient:
         if self.sent_bits != "": print("starting was : " + str(len(self.sent_text) * 8) + "bits")
         if self.sent_bits != "": print("Sent total of : " + str(len(self.sent_bits)) + "bits")
         if self.sent_bits != "": print("Compression: " + str(compressionS) + "%")
-
+        if self.dict_size != 0: print("Dict size: " + str(self.dict_size))
         if self.received_text != "": print("DecodedData: " + str(self.received_text))
         if self.received_bits != "": print("All ReceivedBits: " + str(self.received_bits))
         if self.received_bits_readable != "": print("Received: " + str(self.received_bits_readable))
@@ -53,6 +54,7 @@ class HuffmanClient:
 
         # code -1 if new letter was added
         if code == -1:
+            self.dict_size += 1
             letter_binary = letter_to_binary_string(letter)
             # check for polish chars
             if len(letter_binary) > 8:
@@ -67,7 +69,6 @@ class HuffmanClient:
             self.sent_bits_readable += code
 
         self.sent_bits += send_code
-
 
     def is_node_zero(self, code):
         node_zero_code = self.huffmanTree.get_node_zero_code()
@@ -111,7 +112,7 @@ class HuffmanClient:
                 if polish_char_prefix == "1":
                     offset = 10
 
-                letter_binary = code[bit_index+1:bit_index + offset]
+                letter_binary = code[bit_index + 1:bit_index + offset]
                 letter = letter_from_binary_string(letter_binary)
                 self.huffmanTree.add(letter)
                 self.received_text += letter
